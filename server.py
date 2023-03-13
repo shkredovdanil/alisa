@@ -43,13 +43,17 @@ def main():
 
 def handle_dialog(req, res):
     user_id = req['session']['user_id']
+    res['response']['buttons'] = button_help(req, res, user_id)
     if req['session']['new']:
         res['response']['text'] = 'Привет! Назови свое имя!'
         sessionStorage[user_id] = {
             'first_name': None
         }
         return
-    if sessionStorage[user_id]['first_name'] is None:
+    if req['session']['command'] == 'Справка':
+        res['response']['text'] = f'Игра угадай город\n' \
+                                  f'Вы называете город. Если я его знаю, отправляю вам его фотографию.\n'
+    elif sessionStorage[user_id]['first_name'] is None:
         first_name = get_first_name(req)
         if first_name is None:
             res['response']['text'] = \
@@ -77,6 +81,12 @@ def handle_dialog(req, res):
         else:
             res['response']['text'] = \
                 'Первый раз слышу об этом городе. Попробуй еще разок!'
+
+
+def button_help(req, res, user_id):
+    session = sessionStorage[user_id]
+    suggests = [{'title': 'Справка', 'hide': True}]
+    return suggests
 
 
 def get_city(req):
